@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Classement fournisseurs{% endblock %}
+{% block content %}
+<h4 class="page-title">🏆 Performance fournisseurs</h4>
+<p class="page-subtitle">Classement automatique selon le score global</p>
+<div class="card-panel">
+    <div class="table-responsive">
+    <table class="table table-hover">
+        <thead><tr><th>Rang</th><th>Fournisseur</th><th>OTD</th><th>Coût moyen</th><th>Litiges</th><th>Score</th><th>Évaluation</th></tr></thead>
+        <tbody>
+        {% for r in ranking %}
+            <tr>
+                <td>#{{ r.rank }}</td>
+                <td><a href="{% url 'supplier_detail' r.supplier.pk %}">{{ r.supplier.name }}</a></td>
+                <td>{{ r.otd }}%</td>
+                <td>{{ r.avg_cost|floatformat:0 }} DH</td>
+                <td>{{ r.disputes_count }}</td>
+                <td><strong>{{ r.score }}</strong>/100</td>
+                <td><span class="badge bg-{{ r.badge_color }}">{{ r.badge_icon }} {{ r.badge_label }}</span></td>
+            </tr>
+        {% empty %}<tr><td colspan="7" class="text-muted text-center py-3">Aucune donnée disponible.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

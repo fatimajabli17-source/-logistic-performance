@@ -1,0 +1,230 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Dashboard - IMACID Logistics Performance{% endblock %}
+{% block content %}
+
+<div class="home-hero">
+    <h2 class="fw-bold mb-1">IMACID Logistics Performance</h2>
+    <p class="mb-0" style="opacity:0.9;">Suivi et optimisation des performances des fournisseurs de transport et de transit</p>
+</div>
+
+<!-- Filtres -->
+<div class="card-panel">
+    <div class="panel-title"><i class="fa-solid fa-filter"></i> Filtres</div>
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label small">Fournisseur</label>
+            <select name="supplier" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                {% for s in suppliers %}
+                <option value="{{ s.id }}" {% if filters.supplier == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">Mode / Prestation</label>
+            <select name="service_type" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                {% for val, label in service_choices %}
+                <option value="{{ val }}" {% if filters.service_type == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">Statut</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                {% for val, label in status_choices %}
+                <option value="{{ val }}" {% if filters.status == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">Du</label>
+            <input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control form-control-sm">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small">Au</label>
+            <input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control form-control-sm">
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-primary" style="background:#1d6fa5;border:none;">Appliquer</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-secondary">Réinitialiser</a>
+        </div>
+    </form>
+</div>
+
+<!-- KPI cards -->
+<div class="row g-3 mb-2">
+    <div class="col-6 col-md-3">
+        <div class="kpi-card"><div class="kpi-icon icon-blue"><i class="fa-solid fa-box"></i></div>
+            <div class="kpi-value">{{ kpis.total_orders }}</div><div class="kpi-label">📦 Commandes</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card"><div class="kpi-icon icon-blue"><i class="fa-solid fa-truck"></i></div>
+            <div class="kpi-value">{{ kpis.total_orders }}</div><div class="kpi-label">🚚 Transports liés</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card"><div class="kpi-icon icon-blue"><i class="fa-solid fa-earth-africa"></i></div>
+            <div class="kpi-value">{{ kpis.disputes_count }}</div><div class="kpi-label">🌍 Litiges enregistrés</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card"><div class="kpi-icon icon-green"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="kpi-value">{{ kpis.total_actual_cost|floatformat:0 }} DH</div><div class="kpi-label">💰 Coût total</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card"><div class="kpi-icon icon-orange"><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <div class="kpi-value">{{ kpis.cost_gap|floatformat:0 }} DH</div><div class="kpi-label">📈 Surcoût total</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card"><div class="kpi-icon icon-red"><i class="fa-solid fa-clock"></i></div>
+            <div class="kpi-value">{{ kpis.delay_rate }}%</div><div class="kpi-label">⏱️ Taux de retard</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card"><div class="kpi-icon icon-green"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="kpi-value">{{ kpis.otd }}%</div><div class="kpi-label">🎯 OTD</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card"><div class="kpi-icon icon-blue"><i class="fa-solid fa-star"></i></div>
+            <div class="kpi-value">{{ avg_score }}/100</div><div class="kpi-label">⭐ Score moyen fournisseurs</div></div>
+    </div>
+</div>
+
+<!-- Accès rapide -->
+<div class="card-panel">
+    <div class="panel-title"><i class="fa-solid fa-bolt"></i> Accès rapide</div>
+    <div class="row g-3">
+        <div class="col-6 col-md-3"><a href="{% url 'order_list' %}" class="quick-access-card"><i class="fa-solid fa-box"></i>Commandes</a></div>
+        <div class="col-6 col-md-3"><a href="{% url 'supplier_list' %}" class="quick-access-card"><i class="fa-solid fa-building"></i>Fournisseurs</a></div>
+        <div class="col-6 col-md-3"><a href="{% url 'transport_list' %}" class="quick-access-card"><i class="fa-solid fa-truck"></i>Transport</a></div>
+        <div class="col-6 col-md-3"><a href="{% url 'transit_list' %}" class="quick-access-card"><i class="fa-solid fa-earth-africa"></i>Transit</a></div>
+        <div class="col-6 col-md-3"><a href="{% url 'kpi' %}" class="quick-access-card"><i class="fa-solid fa-chart-column"></i>KPI</a></div>
+        <div class="col-6 col-md-3"><a href="{% url 'analysis_overrun' %}" class="quick-access-card"><i class="fa-solid fa-money-bill-trend-up"></i>Surcoûts</a></div>
+        <div class="col-6 col-md-3"><a href="{% url 'analysis_delay' %}" class="quick-access-card"><i class="fa-solid fa-clock"></i>Retards</a></div>
+        <div class="col-6 col-md-3"><a href="{% url 'action_plan_list' %}" class="quick-access-card"><i class="fa-solid fa-list-check"></i>Plan d'action</a></div>
+    </div>
+</div>
+
+<!-- Graphiques -->
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card-panel"><div class="panel-title">1. Évolution des coûts (prévu vs réel)</div><canvas id="chartCostEvolution" height="220"></canvas></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel"><div class="panel-title">2. Coût prévu vs coût réel (cumul)</div><canvas id="chartPlannedVsActual" height="220"></canvas></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel"><div class="panel-title">3. Nombre de retards par fournisseur</div><canvas id="chartDelaysBySupplier" height="220"></canvas></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel"><div class="panel-title">4. OTD par fournisseur</div><canvas id="chartOtdBySupplier" height="220"></canvas></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel"><div class="panel-title">5. Score des fournisseurs</div><canvas id="chartSupplierScore" height="220"></canvas></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel"><div class="panel-title">6. Évolution mensuelle des performances</div><canvas id="chartMonthlyPerf" height="220"></canvas></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel"><div class="panel-title">7. Répartition des surcoûts par cause</div><canvas id="chartOverrunCauses" height="220"></canvas></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel"><div class="panel-title">8. Répartition des retards par cause</div><canvas id="chartDelayCauses" height="220"></canvas></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel">
+            <div class="panel-title">9. Top 5 fournisseurs les plus performants</div>
+            <table class="table table-sm">
+                <thead><tr><th>Fournisseur</th><th>Score</th><th>OTD</th></tr></thead>
+                <tbody>
+                {% for r in top_perf %}
+                    <tr><td>{{ r.supplier.name }}</td><td>{{ r.score }}</td><td>{{ r.otd }}%</td></tr>
+                {% empty %}<tr><td colspan="3" class="text-muted">Aucune donnée</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-panel">
+            <div class="panel-title">10. Top 5 fournisseurs — plus grands surcoûts</div>
+            <table class="table table-sm">
+                <thead><tr><th>Fournisseur</th><th>Taux de surcoût</th></tr></thead>
+                <tbody>
+                {% for r in top_overrun %}
+                    <tr><td>{{ r.supplier.name }}</td><td>{{ r.overrun_rate }}%</td></tr>
+                {% empty %}<tr><td colspan="2" class="text-muted">Aucune donnée</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const labelsMonths = {{ months_labels_json|safe }};
+const plannedMonths = {{ months_planned_json|safe }};
+const actualMonths = {{ months_actual_json|safe }};
+const delayLabels = {{ delay_labels_json|safe }};
+const delayValues = {{ delay_values_json|safe }};
+const otdLabels = {{ otd_labels_json|safe }};
+const otdValues = {{ otd_values_json|safe }};
+const scoreLabels = {{ score_labels_json|safe }};
+const scoreValues = {{ score_values_json|safe }};
+const overrunCauseLabels = {{ overrun_causes_labels_json|safe }};
+const overrunCauseValues = {{ overrun_causes_values_json|safe }};
+const delayCauseLabels = {{ delay_causes_labels_json|safe }};
+const delayCauseValues = {{ delay_causes_values_json|safe }};
+
+new Chart(document.getElementById('chartCostEvolution'), {
+    type: 'line',
+    data: { labels: labelsMonths, datasets: [
+        { label: 'Coût prévu', data: plannedMonths, borderColor: IMACID_COLORS.blue, backgroundColor: 'transparent', tension: 0.3 },
+        { label: 'Coût réel', data: actualMonths, borderColor: IMACID_COLORS.orange, backgroundColor: 'transparent', tension: 0.3 },
+    ]},
+    options: { responsive: true }
+});
+
+new Chart(document.getElementById('chartPlannedVsActual'), {
+    type: 'bar',
+    data: { labels: ['Coût prévu', 'Coût réel'], datasets: [{ label: 'Montant (MAD)', data: [
+        {{ planned_total_json|safe }}, {{ actual_total_json|safe }}
+    ], backgroundColor: [IMACID_COLORS.blue, IMACID_COLORS.orange] }]},
+    options: { responsive: true, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('chartDelaysBySupplier'), {
+    type: 'bar',
+    data: { labels: delayLabels, datasets: [{ label: 'Retards', data: delayValues, backgroundColor: IMACID_COLORS.red }] },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('chartOtdBySupplier'), {
+    type: 'bar',
+    data: { labels: otdLabels, datasets: [{ label: 'OTD (%)', data: otdValues, backgroundColor: IMACID_COLORS.green }] },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('chartSupplierScore'), {
+    type: 'radar',
+    data: { labels: scoreLabels, datasets: [{ label: 'Score', data: scoreValues, borderColor: IMACID_COLORS.blue, backgroundColor: 'rgba(29,111,165,0.2)' }] },
+    options: { responsive: true }
+});
+
+new Chart(document.getElementById('chartMonthlyPerf'), {
+    type: 'line',
+    data: { labels: labelsMonths, datasets: [{ label: 'Coût réel mensuel', data: actualMonths, borderColor: IMACID_COLORS.darkBlue, backgroundColor: 'rgba(11,37,69,0.1)', fill: true, tension: 0.3 }] },
+    options: { responsive: true }
+});
+
+new Chart(document.getElementById('chartOverrunCauses'), {
+    type: 'doughnut',
+    data: { labels: overrunCauseLabels.length ? overrunCauseLabels : ['Aucune donnée'], datasets: [{ data: overrunCauseValues.length ? overrunCauseValues : [1], backgroundColor: IMACID_COLORS.palette }] },
+});
+
+new Chart(document.getElementById('chartDelayCauses'), {
+    type: 'doughnut',
+    data: { labels: delayCauseLabels.length ? delayCauseLabels : ['Aucune donnée'], datasets: [{ data: delayCauseValues.length ? delayCauseValues : [1], backgroundColor: IMACID_COLORS.palette }] },
+});
+</script>
+{% endblock %}

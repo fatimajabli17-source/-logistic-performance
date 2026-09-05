@@ -1,0 +1,36 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Commande {{ order.number }}{% endblock %}
+{% block content %}
+<h4 class="page-title">Commande {{ order.number }}</h4>
+<p class="page-subtitle">Fournisseur : {{ order.supplier.name }}</p>
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card-panel">
+            <div class="panel-title">Informations générales</div>
+            <table class="table table-sm">
+                <tr><th>Référence déclaration</th><td>{{ order.declaration_ref|default:"—" }}</td></tr>
+                <tr><th>Type de prestation</th><td>{{ order.get_service_type_display }}</td></tr>
+                <tr><th>Origine → Destination</th><td>{{ order.origin }} → {{ order.destination }}</td></tr>
+                <tr><th>Statut</th><td>{{ order.get_status_display }}</td></tr>
+                <tr><th>Observations</th><td>{{ order.observations|default:"—" }}</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-panel">
+            <div class="panel-title">Dates & coûts</div>
+            <table class="table table-sm">
+                <tr><th>Date commande</th><td>{{ order.order_date }}</td></tr>
+                <tr><th>Date prévue</th><td>{{ order.planned_date }}</td></tr>
+                <tr><th>Date réelle</th><td>{{ order.actual_date|default:"—" }}</td></tr>
+                <tr><th>Retard</th><td>{% if order.delay_days is not None %}{{ order.delay_days }} jour(s){% else %}—{% endif %}</td></tr>
+                <tr><th>Coût prévu</th><td>{{ order.planned_cost }} DH</td></tr>
+                <tr><th>Coût réel</th><td>{{ order.actual_cost|default:"—" }}</td></tr>
+                <tr><th>Écart de coût</th><td>{% if order.cost_gap is not None %}{{ order.cost_gap }} DH ({{ order.cost_overrun_rate }}%){% else %}—{% endif %}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+<a href="{% url 'order_update' order.pk %}" class="btn btn-primary" style="background:#1d6fa5;border:none;">Modifier</a>
+<a href="{% url 'order_list' %}" class="btn btn-outline-secondary">Retour</a>
+{% endblock %}

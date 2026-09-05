@@ -1,0 +1,38 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Fournisseurs{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div><h4 class="page-title">🏢 Fournisseurs</h4><p class="page-subtitle mb-0">Gestion et performance des fournisseurs</p></div>
+    <a href="{% url 'supplier_create' %}" class="btn btn-primary" style="background:#1d6fa5;border:none;"><i class="fa-solid fa-plus"></i> Ajouter un fournisseur</a>
+</div>
+<div class="card-panel">
+    <div class="table-responsive">
+    <table class="table table-hover">
+        <thead><tr><th>Fournisseur</th><th>Catégorie</th><th>Commandes</th><th>Coût total</th><th>Coût moyen</th><th>OTD</th><th>Taux retard</th><th>Litiges</th><th>Score</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for row in rows %}
+            <tr>
+                <td><a href="{% url 'supplier_detail' row.supplier.pk %}">{{ row.supplier.name }}</a></td>
+                <td>{{ row.supplier.get_category_display }}</td>
+                {% if row.kpis %}
+                <td>{{ row.kpis.total_orders }}</td>
+                <td>{{ row.kpis.total_actual_cost|floatformat:0 }} DH</td>
+                <td>{{ row.kpis.avg_cost|floatformat:0 }} DH</td>
+                <td>{{ row.kpis.otd }}%</td>
+                <td>{{ row.kpis.delay_rate }}%</td>
+                <td>{{ row.kpis.disputes_count }}</td>
+                <td><strong>{{ row.kpis.score }}</strong>/100</td>
+                {% else %}
+                <td colspan="6" class="text-muted">Aucune commande</td>
+                {% endif %}
+                <td>
+                    <a href="{% url 'supplier_update' row.supplier.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>
+                    <a href="{% url 'supplier_delete' row.supplier.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer ce fournisseur ?');"><i class="fa-solid fa-trash"></i></a>
+                </td>
+            </tr>
+        {% empty %}<tr><td colspan="10" class="text-center text-muted py-4">Aucun fournisseur.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

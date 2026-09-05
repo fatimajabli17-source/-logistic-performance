@@ -1,0 +1,56 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Commandes{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="page-title">📦 Commandes</h4>
+        <p class="page-subtitle mb-0">Gestion des commandes de transport et transit</p>
+    </div>
+    <a href="{% url 'order_create' %}" class="btn btn-primary" style="background:#1d6fa5;border:none;"><i class="fa-solid fa-plus"></i> Ajouter une commande</a>
+</div>
+
+<div class="card-panel">
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4"><input type="text" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Rechercher un numéro de commande..."></div>
+        <div class="col-md-3">
+            <select name="status" class="form-select form-select-sm">
+                <option value="">Tous les statuts</option>
+                {% for val, label in status_choices %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2"><button class="btn btn-sm btn-outline-secondary" type="submit">Filtrer</button></div>
+        <div class="col-md-3 text-end"><a href="{% url 'export_orders_csv' %}" class="btn btn-sm btn-outline-success"><i class="fa-solid fa-file-csv"></i> Export CSV</a></div>
+    </form>
+
+    <div class="table-responsive">
+    <table class="table table-hover">
+        <thead><tr>
+            <th>N° Commande</th><th>Fournisseur</th><th>Date cmd.</th><th>Prévue</th><th>Réelle</th>
+            <th>Coût prévu</th><th>Coût réel</th><th>Statut</th><th>Origine</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+        {% load dashboard_extras %}
+        {% for o in orders %}
+            <tr>
+                <td><a href="{% url 'order_detail' o.pk %}">{{ o.number }}</a> {% if o.source == 'demo' %}<span class="badge badge-demo">Démo</span>{% else %}<span class="badge badge-reelle">Réel</span>{% endif %}</td>
+                <td>{{ o.supplier.name }}</td>
+                <td>{{ o.order_date }}</td>
+                <td>{{ o.planned_date }}</td>
+                <td>{{ o.actual_date|default:"—" }}</td>
+                <td>{{ o.planned_cost }} DH</td>
+                <td>{{ o.actual_cost|default:"—" }}</td>
+                <td><span class="badge bg-{{ o.status|badge_class }}">{{ o.get_status_display }}</span></td>
+                <td>{{ o.origin }} → {{ o.destination }}</td>
+                <td>
+                    <a href="{% url 'order_update' o.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>
+                    <a href="{% url 'order_delete' o.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer cette commande ?');"><i class="fa-solid fa-trash"></i></a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="10" class="text-center text-muted py-4">Aucune commande trouvée.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

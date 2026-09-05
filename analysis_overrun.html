@@ -1,0 +1,41 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Analyse des surcoûts{% endblock %}
+{% block content %}
+<h4 class="page-title">📈 Analyse des surcoûts</h4>
+<p class="page-subtitle">Identification des fournisseurs et causes générant le plus de surcoûts</p>
+
+<div class="card-panel">
+    <div class="table-responsive">
+    <table class="table table-hover">
+        <thead><tr><th>Fournisseur</th><th class="text-end">Coût prévu</th><th class="text-end">Coût réel</th><th class="text-end">Surcoût</th><th class="text-end">Taux de surcoût</th></tr></thead>
+        <tbody>
+        {% for r in rows %}
+            <tr class="{% if r.rate > 15 %}table-danger{% elif r.rate > 5 %}table-warning{% endif %}">
+                <td>{{ r.supplier.name }}</td>
+                <td class="text-end">{{ r.planned_cost|floatformat:0 }} DH</td>
+                <td class="text-end">{{ r.actual_cost|floatformat:0 }} DH</td>
+                <td class="text-end">{{ r.gap|floatformat:0 }} DH</td>
+                <td class="text-end"><strong>{{ r.rate }}%</strong></td>
+            </tr>
+        {% empty %}<tr><td colspan="5" class="text-muted text-center py-3">Aucune donnée disponible.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div class="card-panel">
+    <div class="panel-title">Répartition des surcoûts par cause (litiges)</div>
+    <canvas id="chartCauses" height="120"></canvas>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const labels = [{% for c in causes %}"{{ c.cause__label|default:'Non renseignée' }}",{% endfor %}];
+const values = [{% for c in causes %}{{ c.total }},{% endfor %}];
+new Chart(document.getElementById('chartCauses'), {
+    type: 'bar',
+    data: { labels: labels.length ? labels : ['Aucune donnée'], datasets: [{ label: 'Nombre de cas', data: values.length ? values : [0], backgroundColor: IMACID_COLORS.orange }] },
+    options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+});
+</script>
+{% endblock %}

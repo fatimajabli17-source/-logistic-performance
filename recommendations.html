@@ -1,0 +1,13 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Recommandations{% endblock %}
+{% block content %}
+<h4 class="page-title">💡 Recommandations</h4>
+<p class="page-subtitle">Générées automatiquement à partir des KPI calculés sur les données réelles</p>
+
+{% for r in recos %}
+    <div class="reco-card reco-{{ r.level }}">
+        <div class="fw-semibold mb-1">{{ r.title }}</div>
+        <div class="text-muted" style="font-size:14px;">{{ r.text }}</div>
+    </div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "dashboard/base.html" %}
+{% block title %}KPI{% endblock %}
+{% block content %}
+<h4 class="page-title">📊 Indicateurs de performance (KPI)</h4>
+<p class="page-subtitle">Calculs automatiques à partir des données de la base</p>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.otd }}%</div><div class="kpi-label">OTD — On Time Delivery</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.delay_rate }}%</div><div class="kpi-label">Taux de retard</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.cost_gap|floatformat:0 }} DH</div><div class="kpi-label">Écart de coût</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.overrun_rate }}%</div><div class="kpi-label">Taux de surcoût</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.avg_cost|floatformat:0 }} DH</div><div class="kpi-label">Coût moyen / commande</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.dispute_rate }}%</div><div class="kpi-label">Taux de litiges</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.total_orders }}</div><div class="kpi-label">Commandes analysées</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.disputes_count }}</div><div class="kpi-label">Litiges</div></div></div>
+</div>
+
+<div class="card-panel">
+    <div class="panel-title">Score fournisseur — pondération : 40% OTD + 30% maîtrise des coûts + 20% qualité de service + 10% absence de litiges</div>
+    <table class="table table-sm">
+        <thead><tr><th>Rang</th><th>Fournisseur</th><th>OTD</th><th>Taux retard</th><th>Taux surcoût</th><th>Litiges</th><th>Score</th></tr></thead>
+        <tbody>
+        {% for r in ranking %}
+            <tr><td>{{ r.rank }}</td><td>{{ r.supplier.name }}</td><td>{{ r.otd }}%</td><td>{{ r.delay_rate }}%</td><td>{{ r.overrun_rate }}%</td><td>{{ r.disputes_count }}</td><td><strong>{{ r.score }}</strong>/100</td></tr>
+        {% empty %}<tr><td colspan="7" class="text-muted">Aucune donnée</td></tr>{% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'export_kpi_excel' %}" class="btn btn-sm btn-outline-success mt-2"><i class="fa-solid fa-file-excel"></i> Exporter les KPI (Excel)</a>
+</div>
+{% endblock %}

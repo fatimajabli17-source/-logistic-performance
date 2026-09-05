@@ -1,0 +1,28 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Transport{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div><h4 class="page-title">🚚 Transport</h4><p class="page-subtitle mb-0">Gestion des opérations de transport</p></div>
+    <a href="{% url 'transport_create' %}" class="btn btn-primary" style="background:#1d6fa5;border:none;"><i class="fa-solid fa-plus"></i> Ajouter</a>
+</div>
+<div class="card-panel">
+    <div class="table-responsive">
+    <table class="table table-hover">
+        <thead><tr><th>Référence</th><th>Commande</th><th>Fournisseur</th><th>Mode</th><th>Départ prévu</th><th>Arrivée prévue</th><th>Coût prévu</th><th>Coût réel</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% load dashboard_extras %}
+        {% for t in transports %}
+            <tr>
+                <td>{{ t.reference }}</td><td>{{ t.order.number }}</td><td>{{ t.supplier.name }}</td><td>{{ t.get_mode_display }}</td>
+                <td>{{ t.planned_departure|default:"—" }}</td><td>{{ t.planned_arrival|default:"—" }}</td>
+                <td>{{ t.planned_cost }}</td><td>{{ t.actual_cost|default:"—" }}</td>
+                <td><span class="badge bg-{{ t.status|badge_class }}">{{ t.get_status_display }}</span></td>
+                <td><a href="{% url 'transport_update' t.pk %}" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-pen"></i></a>
+                    <a href="{% url 'transport_delete' t.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer ?');"><i class="fa-solid fa-trash"></i></a></td>
+            </tr>
+        {% empty %}<tr><td colspan="10" class="text-center text-muted py-4">Aucun transport.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

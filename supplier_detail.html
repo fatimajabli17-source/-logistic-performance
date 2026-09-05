@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ supplier.name }}{% endblock %}
+{% block content %}
+<h4 class="page-title">{{ supplier.name }} <span class="badge bg-{{ badge.1 }}">{{ badge.2 }} {{ badge.0 }}</span></h4>
+<p class="page-subtitle">Code : {{ supplier.code }} — {{ supplier.get_category_display }}</p>
+
+<div class="row g-3 mb-2">
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.total_orders }}</div><div class="kpi-label">Commandes</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.otd }}%</div><div class="kpi-label">OTD</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.overrun_rate }}%</div><div class="kpi-label">Taux de surcoût</div></div></div>
+    <div class="col-6 col-md-3"><div class="kpi-card"><div class="kpi-value">{{ kpis.score }}/100</div><div class="kpi-label">Score global</div></div></div>
+</div>
+
+<div class="card-panel">
+    <div class="panel-title">Commandes du fournisseur</div>
+    <table class="table table-sm">
+        <thead><tr><th>N°</th><th>Date</th><th>Coût prévu</th><th>Coût réel</th><th>Statut</th></tr></thead>
+        <tbody>
+        {% for o in orders %}
+            <tr><td><a href="{% url 'order_detail' o.pk %}">{{ o.number }}</a></td><td>{{ o.order_date }}</td><td>{{ o.planned_cost }}</td><td>{{ o.actual_cost|default:"—" }}</td><td>{{ o.get_status_display }}</td></tr>
+        {% empty %}<tr><td colspan="5" class="text-muted">Aucune commande</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'supplier_list' %}" class="btn btn-outline-secondary">Retour</a>
+{% endblock %}

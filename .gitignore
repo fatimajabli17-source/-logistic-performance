@@ -1,0 +1,22 @@
+# Environnement virtuel
+venv/
+env/
+.venv/
+
+# Django
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+staticfiles/
+*.log
+
+# Config locale
+.env
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
